@@ -1,0 +1,4 @@
+.env
+venv/
+mathmatics__pycache__
+*.pyc
