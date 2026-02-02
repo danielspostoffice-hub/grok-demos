@@ -29,7 +29,9 @@ for i in range(10):
 
 print("\nExample prompts per cluster:")
 for i in range(10):
-    examples = opening[clusters == i].head(3).tolist()
+    cluster_mask = clusters == i
+    cluster_opening = opening.reset_index(drop=True)[cluster_mask.reset_index(drop=True)]
+    examples = cluster_opening.head(3).tolist()
     print(f"Cluster {i}:")
     for ex in examples:
         print(f" - {ex}")
