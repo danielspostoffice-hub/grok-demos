@@ -40,7 +40,7 @@ if not api_key:
 grok_client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
 
 response = grok_client.chat.completions.create(
-    model="grok-beta",
+    model="grok-4-fast",
     messages=[
         {"role": "system", "content": "You are a reflective coach. Summarize patterns/themes from user's past prompts. Be concise, insightful."},
         {"role": "user", "content": f"Query: {query}\n\nRelevant past prompts:\n{context}"}
