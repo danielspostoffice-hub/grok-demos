@@ -19,7 +19,7 @@ df = pd.read_csv(CSV_PATH, encoding='utf-8', encoding_errors='replace')
 st.header("Daily Messages")
 df['ts'] = pd.to_datetime(df['timestamp'], errors='coerce')
 daily = df.groupby(df['ts'].dt.date).size().reset_index(name='messages')
-fig1 = px.bar(daily, x='ts', y='messages', title="Daily Messages")
+fig1 = px.bar(daily, x='ts', y='messages')
 st.plotly_chart(fig1)
 
 st.header("Role Counts")
@@ -44,25 +44,30 @@ if query:
     collection = client.get_or_create_collection("prompts", embedding_function=SentenceTransformerEmbeddingFunction("all-MiniLM-L6-v2"))
 
     if collection.count() == 0:
+        st.write("Building DB (first run)...")
         batch_size = 5000
         for i in range(0, len(prompts), batch_size):
             batch_prompts = prompts[i:i+batch_size]
             batch_ids = [str(j) for j in range(i, i+len(batch_prompts))]
             collection.add(documents=batch_prompts, ids=batch_ids)
+        st.write("DB built.")
+    else:
+        st.write("DB loaded.")
 
     results = collection.query(query_texts=[query], n_results=20)
     context = "\n\n".join(results['documents'][0])
 
     api_key = os.getenv("XAI_API_KEY")
-    grok_client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
-
-    response = grok_client.chat.completions.create(
-        model="grok-3",
-        messages=[
-            {"role": "system", "content": "Reflective coach. Summarize patterns from past prompts. Concise, insightful."},
-            {"role": "user", "content": f"Query: {query}\n\nRelevant: \n{context}"}
-        ],
-        max_tokens=800
-    )
-
-    st.write(response.choices[0].message.content)
+    if not api_key:
+        st.error("XAI_API_KEY missing in .env")
+    else:
+        grok_client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
+        response = grok_client.chat.completions.create(
+            model="grok-4-fast",
+            messages=[
+                {"role": "system", "content": "Reflective coach. Summarize patterns/themes from user's past prompts. Concise, insightful."},
+                {"role": "user", "content": f"Query: {query}\n\nRelevant past prompts:\n{context}"}
+            ],
+            max_tokens=800
+        )
+        st.write(response.choices[0].message.content)
