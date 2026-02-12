@@ -1,4 +1,4 @@
-# Grok Demos  (vibe coded, learning code in school soon, don't jude please)
+# Grok Demos  (vibe coded, learning code in school soon, don't judge please)
 
 User's focus centers on data extraction and analysis. After six months and 19k+ dialogue exchanges, data is to be combed and sifted via Python-based tools.
 
